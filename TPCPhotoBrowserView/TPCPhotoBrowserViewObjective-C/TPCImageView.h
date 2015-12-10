@@ -10,4 +10,5 @@
 
 @interface TPCImageView : UIView
 @property (strong, nonatomic) NSString *imageURLString;
+@property (strong, nonatomic) UIImageView *imageView;
 @end

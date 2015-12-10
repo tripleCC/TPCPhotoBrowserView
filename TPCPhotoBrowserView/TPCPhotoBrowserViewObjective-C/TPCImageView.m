@@ -13,7 +13,6 @@
 @interface TPCImageView() <UIScrollViewDelegate>
 {
     UIScrollView *_scrollView;
-    UIImageView *_imageView;
     DALabeledCircularProgressView *_progressView;
 }
 @end
@@ -66,6 +65,7 @@
 }
 
 - (void)setImageURLString:(NSString *)imageURLString {
+    if ([_imageURLString isEqualToString:imageURLString]) { return; }
     _imageURLString = imageURLString;
     [self resetSubviews];
     [_imageView sd_setImageWithURL:[NSURL URLWithString:imageURLString] placeholderImage:nil options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize) {
@@ -109,7 +109,7 @@
     [_imageView addGestureRecognizer:doubleTap];
     
     _progressView = [[DALabeledCircularProgressView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-    _progressView.center = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.width * 0.5);
+    _progressView.center = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5);
     _progressView.roundedCorners = YES;
     _progressView.progressLabel.font = [UIFont systemFontOfSize:10.0];
     _progressView.progressLabel.textColor = [UIColor whiteColor];
@@ -128,12 +128,11 @@
 }
 
 - (void)adjustImageViewFrameByImage:(UIImage *)image {
-    if (image.size.width > image.size.height) {
-        _imageView.bounds = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.width / image.size.width * image.size.height);
-    } else {
-        _imageView.bounds = CGRectMake(0, 0, self.bounds.size.height / image.size.height * image.size.width, image.size.height);
-    }
-    
+    _imageView.bounds = CGRectMake(0, 0, image.size.width, image.size.height);
+    CGFloat xScale = self.bounds.size.width / image.size.width;
+    CGFloat yScale = self.bounds.size.height / image.size.height;
+    CGFloat minScale = MIN(xScale, yScale);
+    _imageView.bounds = CGRectMake(0, 0, _imageView.bounds.size.width * minScale, _imageView.bounds.size.height * minScale);
     [self adjustImageFrame];
 }
 

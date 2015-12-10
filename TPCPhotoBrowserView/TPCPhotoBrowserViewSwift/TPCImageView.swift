@@ -21,6 +21,7 @@ class TPCImageView: UIView {
     private var progressView: DALabeledCircularProgressView!
     var imageURLString: String! {
         didSet {
+            guard imageURLString != oldValue else { return }
             resetSubviews()
             imageView.sd_setImageWithURL(NSURL(string: imageURLString), placeholderImage: UIImage(), options: SDWebImageOptions.RetryFailed, progress: { (receivedSize, expectedSize) -> Void in
                 guard CGFloat(receivedSize) / CGFloat(expectedSize) > 0.009 else {
@@ -45,11 +46,11 @@ class TPCImageView: UIView {
     private func adjustImageViewFrameByImage(image: UIImage?) {
         if let image = image {
             if imageView.contentMode == UIViewContentMode.ScaleAspectFit || imageView.contentMode == UIViewContentMode.Center{
-                if (image.size.width > image.size.height) {
-                    imageView.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.width / image.size.width * image.size.height)
-                } else {
-                    imageView.frame = CGRect(x: 0, y: 0, width: bounds.height / image.size.height * image.size.width, height: image.size.height)
-                }
+                imageView.bounds = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+                let xScale = self.bounds.size.width / image.size.width;
+                let yScale = self.bounds.size.height / image.size.height;
+                let minScale = min(xScale, yScale);
+                imageView.bounds = CGRect(x: 0, y: 0, width: imageView.bounds.size.width * minScale, height: imageView.bounds.size.height * minScale);
             } else {
                 imageView.frame = bounds
             }
